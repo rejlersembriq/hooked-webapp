@@ -42,16 +42,18 @@
 
     <v-content></v-content>
 
-    <v-btn large bottom color="pink" dark fab fixed right>
-      <v-icon>mdi-plus</v-icon>
-    </v-btn>
+    <AddParticipant />
   </v-app>
 </template>
 
 <script>
+import AddParticipant from "./components/AddParticipant.vue";
+
 export default {
   name: "Hooked",
-  components: {},
+  components: {
+    AddParticipant
+  },
   data: () => ({
     drawer: null
   })
