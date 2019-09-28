@@ -5,7 +5,7 @@
         <v-card-title class="accent">
           <span class="headline white--text">Add Participant</span>
           <div class="flex-grow-1"></div>
-          <v-btn large icon @click.stop color="white">
+          <v-btn large icon @click.stop="scan = !scan" color="white">
             <v-icon>mdi-qrcode-scan</v-icon>
           </v-btn>
         </v-card-title>
@@ -65,6 +65,12 @@
       </v-card>
     </v-dialog>
 
+    <QrScanner
+      v-on:update-participant="participant = $event"
+      v-on:close-scanner="scan = false"
+      :showScanner="scan"
+    />
+
     <v-btn large bottom color="pink" dark fab fixed right @click.end="dialog = true">
       <v-icon>mdi-plus</v-icon>
     </v-btn>
@@ -72,12 +78,18 @@
 </template>
 
 <script>
+import QrScanner from "./QrScanner.vue";
+
 export default {
   name: "AddParticipant",
+  components: {
+    QrScanner
+  },
   data() {
     return {
       dialog: false,
       participant: {},
+      scan: false,
       nameRules: [v => !!v || "Name is required"],
       phoneRules: [v => !!v || "Phone No. is required"],
       emailRules: [
