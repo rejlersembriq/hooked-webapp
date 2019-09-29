@@ -71,6 +71,11 @@
       :showScanner="scan"
     />
 
+    <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="snackbar.timeout">
+      {{ this.snackbar.message }}
+      <v-btn color="white" text @click="snackbar.show = false">Close</v-btn>
+    </v-snackbar>
+
     <v-btn large bottom color="pink" dark fab fixed right @click.end="dialog = true">
       <v-icon>mdi-plus</v-icon>
     </v-btn>
@@ -90,6 +95,12 @@ export default {
       dialog: false,
       participant: {},
       scan: false,
+      snackbar: {
+        show: false,
+        timeout: 0,
+        message: "",
+        color: ""
+      },
       nameRules: [v => !!v || "Name is required"],
       phoneRules: [v => !!v || "Phone No. is required"],
       emailRules: [
@@ -101,8 +112,32 @@ export default {
   methods: {
     save() {
       if (this.$refs.form.validate()) {
-        this.dialog = false;
-        this.reset();
+        this.$http
+          .post(
+            this.$store.state.properties.ApiUrl + "/participant",
+            JSON.stringify(this.participant),
+            {
+              headers: { "Content-Type": "application/json" }
+            }
+          )
+          .then(
+            () => {
+              this.snackbar.show = true;
+              this.snackbar.timeout = 5000;
+              this.snackbar.message =
+                "Participant " + this.participant.name + " saved.";
+              this.snackbar.color = "success";
+
+              this.dialog = false;
+              this.reset();
+            },
+            () => {
+              this.snackbar.show = true;
+              this.snackbar.timeout = 5000;
+              this.snackbar.message = "Error when saving participant.";
+              this.snackbar.color = "error";
+            }
+          );
       }
     },
     cancel() {
