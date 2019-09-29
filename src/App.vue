@@ -2,7 +2,7 @@
   <v-app>
     <v-navigation-drawer v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app mini-variant>
       <v-list dense>
-        <v-list-item @click.stop>
+        <v-list-item to="/">
           <v-list-item-action>
             <v-icon>mdi-account-plus</v-icon>
           </v-list-item-action>
@@ -10,15 +10,15 @@
             <v-list-item-title>First</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item @click.stop>
+        <v-list-item to="List">
           <v-list-item-action>
-            <v-icon>mdi-account</v-icon>
+            <v-icon>mdi-account-multiple</v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Second</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item @click.stop>
+        <v-list-item to="Winner">
           <v-list-item-action>
             <v-icon>mdi-podium-gold</v-icon>
           </v-list-item-action>
@@ -40,7 +40,9 @@
       <img src="./assets/rejlers.svg" class="hidden-md-and-down" style="height: 22px" />
     </v-app-bar>
 
-    <v-content></v-content>
+    <v-content>
+      <router-view></router-view>
+    </v-content>
 
     <AddParticipant />
   </v-app>
