@@ -16,7 +16,10 @@
 <script>
 export default {
   name: "QrScanner",
-  props: ["showScanner"],
+  props: {
+    showScanner: Boolean
+  },
+  
   data() {
     return {
       rawQr: "",
@@ -24,6 +27,7 @@ export default {
       showAlert: false
     };
   },
+
   methods: {
     onDecode(decodedString) {
       if (decodedString === "") {

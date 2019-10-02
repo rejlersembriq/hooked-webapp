@@ -90,6 +90,7 @@ export default {
   components: {
     QrScanner
   },
+
   data() {
     return {
       dialog: false,
@@ -109,6 +110,7 @@ export default {
       ]
     };
   },
+
   methods: {
     save() {
       if (this.$refs.form.validate()) {
@@ -140,10 +142,12 @@ export default {
           );
       }
     },
+
     cancel() {
       this.dialog = false;
       this.reset();
     },
+    
     reset() {
       this.$refs.form.reset();
     }
