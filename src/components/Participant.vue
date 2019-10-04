@@ -1,66 +1,70 @@
 <template>
   <v-card>
     <v-card-title class="accent">
-      <span class="headline white--text">{{ participant.name }}</span>
+      <span class="headline white--text">{{ headline }}</span>
       <div class="flex-grow-1"></div>
-      <v-btn icon @click.stop color="white">
+      <v-btn icon @click.stop="editable = !editable" color="white">
         <v-icon>mdi-lead-pencil</v-icon>
       </v-btn>
     </v-card-title>
-    <v-list>
-      <v-list-item>
-        <v-list-item-action>
-          <v-icon>mdi-email</v-icon>
-        </v-list-item-action>
-        <v-list-item-content>
-          <v-list-item-title>{{ participant.email }}</v-list-item-title>
-        </v-list-item-content>
-        <v-list-item-action>
-          <v-btn icon @click.stop="copy(participant.email)" class="mr-2">
-            <v-icon>mdi-content-copy</v-icon>
-          </v-btn>
-        </v-list-item-action>
-      </v-list-item>
-      <v-divider inset="inset"></v-divider>
-      <v-list-item>
-        <v-list-item-action>
-          <v-icon>mdi-phone</v-icon>
-        </v-list-item-action>
-        <v-list-item-content>
-          <v-list-item-title>{{ participant.phone }}</v-list-item-title>
-        </v-list-item-content>
-        <v-list-item-action>
-          <v-btn icon @click.stop="copy(participant.phone)" class="mr-2">
-            <v-icon>mdi-content-copy</v-icon>
-          </v-btn>
-        </v-list-item-action>
-      </v-list-item>
-      <v-divider inset="inset"></v-divider>
-      <v-list-item>
-        <v-list-item-action>
-          <v-icon>mdi-office-building</v-icon>
-        </v-list-item-action>
-        <v-list-item-content>
-          <v-list-item-title>{{ participant.org }}</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item>
-        <v-list-item-action>
-          <v-icon>mdi-pound</v-icon>
-        </v-list-item-action>
-        <v-list-item-content>
-          <v-list-item-title>
-            <v-btn icon @click.stop class="mr-2">
-              <v-icon dark>mdi-minus</v-icon>
-            </v-btn>
-            {{ participant.score }}
-            <v-btn icon @click.stop class="ml-2">
-              <v-icon dark>mdi-plus</v-icon>
-            </v-btn>
-          </v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
+    <v-form ref="form" lazy-validation>
+      <v-container grid-list-sm="grid-list-sm">
+        <v-layout row="row" wrap="wrap">
+          <v-flex xs12>
+            <v-text-field
+              v-model="participantInternal.name"
+              :rules="nameRules"
+              prepend-icon="person"
+              placeholder="Name"
+              required
+              :readonly="!editable"
+            ></v-text-field>
+          </v-flex>
+          <v-flex xs12>
+            <v-text-field
+              v-model="participantInternal.email"
+              :rules="emailRules"
+              prepend-icon="mail"
+              placeholder="Email"
+              required
+              :readonly="!editable"
+            ></v-text-field>
+          </v-flex>
+          <v-flex xs12>
+            <v-text-field
+              v-model="participantInternal.phone"
+              :rules="phoneRules"
+              type="tel"
+              prepend-icon="phone"
+              placeholder="Phone"
+              required
+              :readonly="!editable"
+            ></v-text-field>
+          </v-flex>
+          <v-flex xs12>
+            <v-text-field
+              v-model="participantInternal.org"
+              prepend-icon="business"
+              placeholder="Company"
+              :readonly="!editable"
+            ></v-text-field>
+          </v-flex>
+          <v-flex xs12>
+            <v-text-field
+              v-model="participantInternal.comment"
+              prepend-icon="notes"
+              placeholder="Notes"
+              :readonly="!editable"
+            ></v-text-field>
+          </v-flex>
+        </v-layout>
+      </v-container>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn v-if="editable" text color="primary" @click.end="cancel">Cancel</v-btn>
+        <v-btn v-if="editable" text @click.end="save">Save</v-btn>
+      </v-card-actions>
+    </v-form>
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="snackbar.timeout">
       {{ this.snackbar.message }}
       <v-btn color="white" text @click="snackbar.show = false">Close</v-btn>
@@ -72,21 +76,117 @@
 export default {
   name: "Participant",
   props: {
+    headline: String,
     participant: Object
   },
 
   data() {
     return {
+      participantInternal: {},
+      editable: false,
       snackbar: {
         show: false,
         timeout: 0,
         message: "",
         color: ""
-      }
+      },
+      nameRules: [v => !!v || "Name is required"],
+      phoneRules: [v => !!v || "Phone No. is required"],
+      emailRules: [
+        v => !!v || "E-mail is required",
+        v => /.+@.+\..+/.test(v) || "E-mail must be valid"
+      ]
     };
   },
 
+  created() {
+    this.participantInternal = this.copyObj(this.participant);
+  },
+
   methods: {
+    save() {
+      if (this.$refs.form.validate()) {
+        if (this.participant.id) {
+          this.putParticipant();
+        } else {
+          this.postParticipant();
+        }
+      }
+    },
+
+    postParticipant() {
+      this.$http
+        .post(
+          this.$store.state.properties.ApiUrl + "/participant",
+          JSON.stringify(this.participantInternal),
+          {
+            headers: { "Content-Type": "application/json" }
+          }
+        )
+        .then(
+          result => {
+            this.snackbar.show = true;
+            this.snackbar.timeout = 5000;
+            this.snackbar.message =
+              "Participant " + this.participant.name + " saved.";
+            this.snackbar.color = "success";
+
+            this.dialog = false;
+            this.editable = false;
+            this.participantInternal = result.body;
+
+            this.$emit("update-participant", this.participantInternal);
+          },
+          () => {
+            this.snackbar.show = true;
+            this.snackbar.timeout = 5000;
+            this.snackbar.message = "Error when saving participant.";
+            this.snackbar.color = "error";
+          }
+        );
+    },
+
+    putParticipant() {
+      this.$http
+        .put(
+          this.$store.state.properties.ApiUrl +
+            "/participant/" +
+            this.participant.id,
+          JSON.stringify(this.participantInternal),
+          {
+            headers: { "Content-Type": "application/json" }
+          }
+        )
+        .then(
+          result => {
+            this.snackbar.show = true;
+            this.snackbar.timeout = 5000;
+            this.snackbar.message =
+              "Participant " + this.participant.name + " saved.";
+            this.snackbar.color = "success";
+
+            this.dialog = false;
+            this.editable = false;
+            this.participantInternal = result.body;
+
+            this.$emit("update-participant", this.participantInternal);
+          },
+          () => {
+            this.snackbar.show = true;
+            this.snackbar.timeout = 5000;
+            this.snackbar.message = "Error when saving participant.";
+            this.snackbar.color = "error";
+          }
+        );
+    },
+
+    cancel() {
+      this.editable = false;
+      this.participantInternal = this.copyObj(this.participant);
+
+      this.$emit("update-participant", this.participantInternal);
+    },
+
     copy(str) {
       // Create new element
       var el = document.createElement("textarea");
@@ -107,6 +207,11 @@ export default {
       this.snackbar.color = "primary";
       this.snackbar.timeout = 3000;
       this.snackbar.message = "Copied to clipboard";
+    },
+
+    copyObj(from) {
+      let copyStr = JSON.stringify(from);
+      return JSON.parse(copyStr);
     }
   }
 };

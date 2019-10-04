@@ -13,14 +13,12 @@
       >
         <template v-slot:default="props">
           <v-row class="flex-column align-center flex-sm-row">
-            <v-col
-              v-for="participant in props.items"
-              :key="participant.name"
-              cols="12"
-              lg="6"
-              md="6"
-            >
-              <Participant :participant="participant" :index="0" />
+            <v-col v-for="participant in props.items" :key="participant.id" cols="12" lg="6" md="6">
+              <Participant
+                :headline="participant.name"
+                :participant="participant"
+                v-on:update-participant="participant = $event"
+              />
             </v-col>
           </v-row>
         </template>
@@ -125,16 +123,20 @@ export default {
           }
         );
     },
+
     nextPage() {
       if (this.iterator.page + 1 <= this.numberOfPages) this.iterator.page += 1;
     },
+
     formerPage() {
       if (this.iterator.page - 1 >= 1) this.iterator.page -= 1;
     },
+
     updateItemsPerPage(number) {
       this.iterator.itemsPerPage = number;
     }
   },
+
   computed: {
     numberOfPages() {
       return Math.ceil(this.participants.length / this.iterator.itemsPerPage);
