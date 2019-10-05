@@ -13,7 +13,7 @@
       >
         <template v-slot:default="props">
           <v-row class="flex-column align-center flex-sm-row">
-            <v-col v-for="(participant, i) in participants" :key="i" cols="12" lg="6" md="6">
+            <v-col v-for="(participant, i) in props.items" :key="i" cols="12" lg="6" md="6">
               <Participant :headline="participant.name" v-model="participants[i]" />
             </v-col>
           </v-row>
@@ -80,7 +80,7 @@ export default {
         filter: {},
         sortDesc: false,
         page: 1,
-        itemsPerPage: 10,
+        itemsPerPage: 5,
         sortBy: "name"
       },
       snackbar: {
