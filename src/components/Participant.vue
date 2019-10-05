@@ -1,9 +1,9 @@
 <template>
   <v-card>
     <v-card-title class="accent">
-      <span class="headline white--text">{{ headline }}</span>
+      <span class="headline white--text">{{ this.headline }}</span>
       <div class="flex-grow-1"></div>
-      <v-btn icon @click.stop="editable = !editable" color="white">
+      <v-btn icon @click.stop="editable = !editable" :disabled="editable" color="white">
         <v-icon>mdi-lead-pencil</v-icon>
       </v-btn>
     </v-card-title>
@@ -12,7 +12,8 @@
         <v-layout row="row" wrap="wrap">
           <v-flex xs12>
             <v-text-field
-              v-model="participantInternal.name"
+              :value="value.name"
+              @input="updateName"
               :rules="nameRules"
               prepend-icon="person"
               placeholder="Name"
@@ -22,9 +23,12 @@
           </v-flex>
           <v-flex xs12>
             <v-text-field
-              v-model="participantInternal.email"
+              :value="value.email"
+              @input="updateEmail"
               :rules="emailRules"
               prepend-icon="mail"
+              append-icon="mdi-content-copy"
+              @click:append="copy(value.email)"
               placeholder="Email"
               required
               :readonly="!editable"
@@ -32,10 +36,13 @@
           </v-flex>
           <v-flex xs12>
             <v-text-field
-              v-model="participantInternal.phone"
+              :value="value.phone"
+              @input="updatePhone"
               :rules="phoneRules"
               type="tel"
               prepend-icon="phone"
+              append-icon="mdi-content-copy"
+              @click:append="copy(value.phone)"
               placeholder="Phone"
               required
               :readonly="!editable"
@@ -43,7 +50,8 @@
           </v-flex>
           <v-flex xs12>
             <v-text-field
-              v-model="participantInternal.org"
+              :value="value.org"
+              @input="updateOrg"
               prepend-icon="business"
               placeholder="Company"
               :readonly="!editable"
@@ -51,7 +59,8 @@
           </v-flex>
           <v-flex xs12>
             <v-text-field
-              v-model="participantInternal.comment"
+              :value="value.comment"
+              @input="updateComment"
               prepend-icon="notes"
               placeholder="Notes"
               :readonly="!editable"
@@ -77,7 +86,7 @@ export default {
   name: "Participant",
   props: {
     headline: String,
-    participant: Object
+    value: Object
   },
 
   data() {
@@ -100,13 +109,37 @@ export default {
   },
 
   created() {
-    this.participantInternal = this.copyObj(this.participant);
+    this.participantInternal = { ...this.value };
   },
 
   methods: {
+    updateName(str) {
+      this.updateValue("name", str);
+    },
+
+    updateEmail(str) {
+      this.updateValue("email", str);
+    },
+
+    updatePhone(str) {
+      this.updateValue("phone", str);
+    },
+
+    updateOrg(str) {
+      this.updateValue("org", str);
+    },
+
+    updateComment(str) {
+      this.updateValue("comment", str);
+    },
+
+    updateValue(key, value) {
+      this.$emit("input", { ...this.value, [key]: value });
+    },
+
     save() {
       if (this.$refs.form.validate()) {
-        if (this.participant.id) {
+        if (this.value.id) {
           this.putParticipant();
         } else {
           this.postParticipant();
@@ -118,7 +151,7 @@ export default {
       this.$http
         .post(
           this.$store.state.properties.ApiUrl + "/participant",
-          JSON.stringify(this.participantInternal),
+          JSON.stringify(this.value),
           {
             headers: { "Content-Type": "application/json" }
           }
@@ -128,14 +161,13 @@ export default {
             this.snackbar.show = true;
             this.snackbar.timeout = 5000;
             this.snackbar.message =
-              "Participant " + this.participant.name + " saved.";
+              "Participant " + result.body.name + " saved.";
             this.snackbar.color = "success";
 
-            this.dialog = false;
             this.editable = false;
-            this.participantInternal = result.body;
 
-            this.$emit("update-participant", this.participantInternal);
+            this.participantInternal = { ...result.body };
+            this.$emit("input", { ...this.value, ...result.body });
           },
           () => {
             this.snackbar.show = true;
@@ -149,10 +181,8 @@ export default {
     putParticipant() {
       this.$http
         .put(
-          this.$store.state.properties.ApiUrl +
-            "/participant/" +
-            this.participant.id,
-          JSON.stringify(this.participantInternal),
+          this.$store.state.properties.ApiUrl + "/participant/" + this.value.id,
+          JSON.stringify(this.value),
           {
             headers: { "Content-Type": "application/json" }
           }
@@ -162,14 +192,13 @@ export default {
             this.snackbar.show = true;
             this.snackbar.timeout = 5000;
             this.snackbar.message =
-              "Participant " + this.participant.name + " saved.";
+              "Participant " + result.body.name + " saved.";
             this.snackbar.color = "success";
 
-            this.dialog = false;
             this.editable = false;
-            this.participantInternal = result.body;
 
-            this.$emit("update-participant", this.participantInternal);
+            this.participantInternal = { ...result.body };
+            this.$emit("input", { ...this.value, ...result.body });
           },
           () => {
             this.snackbar.show = true;
@@ -182,9 +211,8 @@ export default {
 
     cancel() {
       this.editable = false;
-      this.participantInternal = this.copyObj(this.participant);
 
-      this.$emit("update-participant", this.participantInternal);
+      this.$emit("input", { ...this.value, ...this.participantInternal });
     },
 
     copy(str) {
@@ -207,11 +235,6 @@ export default {
       this.snackbar.color = "primary";
       this.snackbar.timeout = 3000;
       this.snackbar.message = "Copied to clipboard";
-    },
-
-    copyObj(from) {
-      let copyStr = JSON.stringify(from);
-      return JSON.parse(copyStr);
     }
   }
 };

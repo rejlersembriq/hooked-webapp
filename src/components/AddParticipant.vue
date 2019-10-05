@@ -147,7 +147,7 @@ export default {
       this.dialog = false;
       this.reset();
     },
-    
+
     reset() {
       this.$refs.form.reset();
     }
