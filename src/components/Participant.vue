@@ -69,11 +69,21 @@
         </v-layout>
       </v-container>
       <v-card-actions>
+        <v-btn v-if="editable" text tile color="primary" @click.end="scan = !scan">
+          <v-icon left>mdi-qrcode-scan</v-icon>Scan
+        </v-btn>
         <v-spacer></v-spacer>
         <v-btn v-if="editable" text color="primary" @click.end="cancel">Cancel</v-btn>
         <v-btn v-if="editable" text @click.end="save">Save</v-btn>
       </v-card-actions>
     </v-form>
+
+    <QrScanner
+      v-on:update-participant="updateParticipant"
+      v-on:close-scanner="scan = false"
+      :showScanner="scan"
+    />
+
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="snackbar.timeout">
       {{ this.snackbar.message }}
       <v-btn color="white" text @click="snackbar.show = false">Close</v-btn>
@@ -82,8 +92,13 @@
 </template>
 
 <script>
+import QrScanner from "./QrScanner.vue";
+
 export default {
   name: "Participant",
+  components: {
+    QrScanner
+  },
   props: {
     headline: String,
     value: Object
@@ -93,6 +108,7 @@ export default {
     return {
       participantInternal: {},
       editable: false,
+      scan: false,
       snackbar: {
         show: false,
         timeout: 0,
@@ -137,6 +153,10 @@ export default {
       this.$emit("input", { ...this.value, [key]: value });
     },
 
+    updateParticipant(participant) {
+      this.$emit("input", { ...this.value, ...participant });
+    },
+
     save() {
       if (this.$refs.form.validate()) {
         if (this.value.id) {
@@ -167,7 +187,7 @@ export default {
             this.editable = false;
 
             this.participantInternal = { ...result.body };
-            this.$emit("input", { ...this.value, ...result.body });
+            this.updateParticipant(result.body);
           },
           () => {
             this.snackbar.show = true;
@@ -198,7 +218,7 @@ export default {
             this.editable = false;
 
             this.participantInternal = { ...result.body };
-            this.$emit("input", { ...this.value, ...result.body });
+            this.updateParticipant(result.body);
           },
           () => {
             this.snackbar.show = true;
@@ -212,7 +232,7 @@ export default {
     cancel() {
       this.editable = false;
 
-      this.$emit("input", { ...this.value, ...this.participantInternal });
+      this.updateParticipant(this.participantInternal);
     },
 
     copy(str) {

@@ -80,7 +80,7 @@ export default {
         filter: {},
         sortDesc: false,
         page: 1,
-        itemsPerPage: 5,
+        itemsPerPage: 10,
         sortBy: "name"
       },
       snackbar: {
