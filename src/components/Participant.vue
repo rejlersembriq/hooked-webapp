@@ -57,6 +57,18 @@
               :readonly="!editable"
             ></v-text-field>
           </v-flex>
+          <v-flex xs1>
+            <v-icon>mdi-pound</v-icon>
+          </v-flex>
+          <v-flex xs11>
+            <v-btn icon @click.stop="decrementScore" class="mr-2">
+              <v-icon dark>mdi-minus</v-icon>
+            </v-btn>
+            {{ this.value.score }}
+            <v-btn icon @click.stop="incrementScore" class="ml-2">
+              <v-icon dark>mdi-plus</v-icon>
+            </v-btn>
+          </v-flex>
           <v-flex xs12>
             <v-text-field
               :value="value.comment"
@@ -65,6 +77,9 @@
               placeholder="Notes"
               :readonly="!editable"
             ></v-text-field>
+          </v-flex>
+          <v-flex class="my-n4" flex-row xs12>
+            <v-flex class="grey--text caption">Last updated: {{ this.value.updated }}</v-flex>
           </v-flex>
         </v-layout>
       </v-container>
@@ -224,6 +239,46 @@ export default {
             this.snackbar.show = true;
             this.snackbar.timeout = 5000;
             this.snackbar.message = "Error when saving participant.";
+            this.snackbar.color = "error";
+          }
+        );
+    },
+
+    incrementScore() {
+      this.putScore(this.value.score + 1);
+    },
+
+    decrementScore() {
+      if (this.value.score > 0) {
+        this.putScore(this.value.score - 1);
+      }
+    },
+
+    putScore(score) {
+      console.log(JSON.stringify({ score: score }));
+      this.$http
+        .put(
+          this.$store.state.properties.ApiUrl + "/participant/" + this.value.id,
+          JSON.stringify({ score: score }),
+          {
+            headers: { "Content-Type": "application/json" }
+          }
+        )
+        .then(
+          result => {
+            this.snackbar.show = true;
+            this.snackbar.timeout = 5000;
+            this.snackbar.message =
+              "Score set to " + result.body.score + " for " + result.body.name;
+            this.snackbar.color = "success";
+
+            this.participantInternal = { ...result.body };
+            this.updateParticipant(result.body);
+          },
+          () => {
+            this.snackbar.show = true;
+            this.snackbar.timeout = 5000;
+            this.snackbar.message = "Error when updating score.";
             this.snackbar.color = "error";
           }
         );
