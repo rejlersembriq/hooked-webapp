@@ -14,7 +14,10 @@
         <template v-slot:default="props">
           <v-row class="flex-column align-center flex-sm-row">
             <v-col v-for="(participant, i) in props.items" :key="i" cols="12" lg="6" md="6">
-              <Participant :headline="participant.name" v-model="props.items[i]" />
+              <Participant
+                :headline="participant.name"
+                v-model="participants[(iterator.page-1)*iterator.itemsPerPage + i]"
+              />
             </v-col>
           </v-row>
         </template>
