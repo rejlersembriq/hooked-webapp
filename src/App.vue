@@ -35,7 +35,6 @@
         <span>Hooked</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-text-field flat solo-inverted hide-details prepend-inner-icon="search" label="Search"></v-text-field>
       <div class="flex-grow-1"></div>
       <img src="./assets/rejlers.svg" class="hidden-md-and-down" style="height: 22px" />
     </v-app-bar>

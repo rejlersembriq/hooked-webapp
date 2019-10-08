@@ -255,7 +255,6 @@ export default {
     },
 
     putScore(score) {
-      console.log(JSON.stringify({ score: score }));
       this.$http
         .put(
           this.$store.state.properties.ApiUrl + "/participant/" + this.value.id,

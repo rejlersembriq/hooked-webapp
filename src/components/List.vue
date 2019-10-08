@@ -5,18 +5,48 @@
     <v-container v-if="participants.length > 0" class="mb-12">
       <v-data-iterator
         :page="iterator.page"
+        :search="iterator.search"
+        :sort-by="iterator.sortBy.toLowerCase()"
+        :sort-desc="iterator.sortDesc"
         :items="participants"
         :items-per-page.sync="iterator.itemsPerPage"
         no-data-text="No data loaded"
         :loading="loading"
         hide-default-footer
       >
+        <template v-slot:header>
+          <v-toolbar dark="dark" class="secondary mb-1">
+            <v-text-field
+              v-model="iterator.search"
+              clearable="clearable"
+              flat="flat"
+              solo-inverted="solo-inverted"
+              hide-details="hide-details"
+              prepend-inner-icon="search"
+              label="Search"
+            ></v-text-field>
+            <template v-if="$vuetify.breakpoint.mdAndUp">
+              <div class="flex-grow-1"></div>
+              <v-select
+                v-model="iterator.sortBy"
+                flat="flat"
+                solo-inverted="solo-inverted"
+                hide-details="hide-details"
+                :items="iterator.keys"
+                prepend-inner-icon="search"
+                label="Sort by"
+              ></v-select>
+              <div class="flex-grow-1"></div>
+            </template>
+          </v-toolbar>
+        </template>
+
         <template v-slot:default="props">
           <v-row class="flex-column align-center flex-sm-row">
             <v-col v-for="(participant, i) in props.items" :key="i" cols="12" lg="6" md="6">
               <Participant
                 :headline="participant.name"
-                v-model="participants[(iterator.page-1)*iterator.itemsPerPage + i]"
+                v-model="participants[participants.indexOf(participant)]"
               />
             </v-col>
           </v-row>
@@ -84,7 +114,8 @@ export default {
         sortDesc: false,
         page: 1,
         itemsPerPage: 10,
-        sortBy: "name"
+        sortBy: "",
+        keys: ["Name", "Email", "Phone", "Company", "Score", "Created"]
       },
       snackbar: {
         show: false,
