@@ -12,8 +12,7 @@
         <v-layout row="row" wrap="wrap">
           <v-flex xs12>
             <v-text-field
-              :value="value.name"
-              @input="updateName"
+              v-model="participantInternal.name"
               :rules="nameRules"
               prepend-icon="person"
               placeholder="Name"
@@ -23,8 +22,7 @@
           </v-flex>
           <v-flex xs12>
             <v-text-field
-              :value="value.email"
-              @input="updateEmail"
+              v-model="participantInternal.email"
               :rules="emailRules"
               prepend-icon="mail"
               append-icon="mdi-content-copy"
@@ -36,8 +34,7 @@
           </v-flex>
           <v-flex xs12>
             <v-text-field
-              :value="value.phone"
-              @input="updatePhone"
+              v-model="participantInternal.phone"
               :rules="phoneRules"
               type="tel"
               prepend-icon="phone"
@@ -50,8 +47,7 @@
           </v-flex>
           <v-flex xs12>
             <v-text-field
-              :value="value.org"
-              @input="updateOrg"
+              v-model="participantInternal.org"
               prepend-icon="business"
               placeholder="Company"
               :readonly="!editable"
@@ -71,15 +67,14 @@
           </v-flex>
           <v-flex xs12>
             <v-text-field
-              :value="value.comment"
-              @input="updateComment"
+              v-model="participantInternal.comment"
               prepend-icon="notes"
               placeholder="Notes"
               :readonly="!editable"
             ></v-text-field>
           </v-flex>
           <v-flex class="my-n4" flex-row xs12>
-            <v-flex class="grey--text caption">Last updated: {{ this.value.updated }}</v-flex>
+            <v-flex class="grey--text caption">Last updated: {{ this.participantInternal.updated }}</v-flex>
           </v-flex>
         </v-layout>
       </v-container>
@@ -94,7 +89,7 @@
     </v-form>
 
     <QrScanner
-      v-on:update-participant="updateParticipant"
+      v-on:update-participant="participantInternal = $event"
       v-on:close-scanner="scan = false"
       :showScanner="scan"
     />
@@ -143,31 +138,13 @@ export default {
     this.participantInternal = { ...this.value };
   },
 
+  watch: {
+    value: function() {
+      this.participantInternal = { ...this.value };
+    }
+  },
+
   methods: {
-    updateName(str) {
-      this.updateValue("name", str);
-    },
-
-    updateEmail(str) {
-      this.updateValue("email", str);
-    },
-
-    updatePhone(str) {
-      this.updateValue("phone", str);
-    },
-
-    updateOrg(str) {
-      this.updateValue("org", str);
-    },
-
-    updateComment(str) {
-      this.updateValue("comment", str);
-    },
-
-    updateValue(key, value) {
-      this.$emit("input", { ...this.value, [key]: value });
-    },
-
     updateParticipant(participant) {
       this.$emit("input", { ...this.value, ...participant });
     },
@@ -186,7 +163,7 @@ export default {
       this.$http
         .post(
           this.$store.state.properties.ApiUrl + "/participant",
-          JSON.stringify(this.value),
+          JSON.stringify(this.participantInternal),
           {
             headers: { "Content-Type": "application/json" }
           }
@@ -216,8 +193,10 @@ export default {
     putParticipant() {
       this.$http
         .put(
-          this.$store.state.properties.ApiUrl + "/participant/" + this.value.id,
-          JSON.stringify(this.value),
+          this.$store.state.properties.ApiUrl +
+            "/participant/" +
+            this.participantInternal.id,
+          JSON.stringify(this.participantInternal),
           {
             headers: { "Content-Type": "application/json" }
           }
@@ -257,7 +236,9 @@ export default {
     putScore(score) {
       this.$http
         .put(
-          this.$store.state.properties.ApiUrl + "/participant/" + this.value.id,
+          this.$store.state.properties.ApiUrl +
+            "/participant/" +
+            this.participantInternal.id,
           JSON.stringify({ score: score }),
           {
             headers: { "Content-Type": "application/json" }
@@ -286,7 +267,7 @@ export default {
     cancel() {
       this.editable = false;
 
-      this.updateParticipant(this.participantInternal);
+      this.participantInternal = { ...this.value };
     },
 
     copy(str) {

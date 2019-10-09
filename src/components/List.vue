@@ -115,7 +115,7 @@ export default {
         page: 1,
         itemsPerPage: 10,
         sortBy: "",
-        keys: ["Name", "Email", "Phone", "Company", "Score", "Created"]
+        keys: ["Name", "Email", "Phone", "Company", "Score"]
       },
       snackbar: {
         show: false,
