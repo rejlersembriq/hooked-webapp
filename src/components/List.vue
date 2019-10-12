@@ -26,8 +26,10 @@
               prepend-inner-icon="search"
               label="Search"
             ></v-text-field>
-            <template>
-              <div class="flex-grow-1"></div>
+            <template #extension>
+              <v-btn icon class="mr-2" @click.stop="sortAsc">
+                <v-icon>mdi-arrow-up</v-icon>
+              </v-btn>
               <v-select
                 v-model="iterator.sortBy"
                 flat="flat"
@@ -37,13 +39,10 @@
                 prepend-inner-icon="search"
                 label="Sort by"
               ></v-select>
+              <v-btn icon class="ml-2" @click.stop="sortDesc">
+                <v-icon>mdi-arrow-down</v-icon>
+              </v-btn>
             </template>
-            <v-btn icon @click.stop="sortAsc">
-              <v-icon>mdi-chevron-up</v-icon>
-            </v-btn>
-            <v-btn icon @click.stop="sortDesc">
-              <v-icon>mdi-chevron-down</v-icon>
-            </v-btn>
           </v-toolbar>
         </template>
 
