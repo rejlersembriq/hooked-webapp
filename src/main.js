@@ -26,6 +26,10 @@ const store = new Vuex.Store({
   state: {
     properties: null,
   },
+  getters: {
+    properties: state => state.properties,
+    apiUrl: state => state.properties.ApiUrl,
+  },
   mutations: {
     setProperties(state, properties) {
       state.properties = properties;

@@ -1,8 +1,6 @@
 <template>
   <div class="pa-3">
-    <v-btn class="mr-2" @click.stop="getParticipants" :loading="loading">Show All</v-btn>
-
-    <v-container v-if="participants.length > 0" class="mb-12">
+    <v-container class="mb-12">
       <v-data-iterator
         :page="iterator.page"
         :search="iterator.search"
@@ -16,6 +14,9 @@
       >
         <template v-slot:header>
           <v-toolbar dark="dark" class="secondary mb-1">
+            <v-btn icon class="mr-2" @click.stop="getParticipants" :loading="loading">
+              <v-icon>mdi-refresh</v-icon>
+            </v-btn>
             <v-text-field
               v-model="iterator.search"
               clearable="clearable"
@@ -25,7 +26,7 @@
               prepend-inner-icon="search"
               label="Search"
             ></v-text-field>
-            <template v-if="$vuetify.breakpoint.mdAndUp">
+            <template>
               <div class="flex-grow-1"></div>
               <v-select
                 v-model="iterator.sortBy"
@@ -36,8 +37,13 @@
                 prepend-inner-icon="search"
                 label="Sort by"
               ></v-select>
-              <div class="flex-grow-1"></div>
             </template>
+            <v-btn icon @click.stop="sortAsc">
+              <v-icon>mdi-chevron-up</v-icon>
+            </v-btn>
+            <v-btn icon @click.stop="sortDesc">
+              <v-icon>mdi-chevron-down</v-icon>
+            </v-btn>
           </v-toolbar>
         </template>
 
@@ -126,11 +132,24 @@ export default {
     };
   },
 
+  created() {
+    if (this.$store.getters.properties) {
+      this.getParticipants();
+    } else {
+      this.$store.watch(
+        () => this.$store.getters.properties,
+        () => {
+          this.getParticipants();
+        }
+      );
+    }
+  },
+
   methods: {
     getParticipants() {
       this.loading = true;
       this.$http
-        .get(this.$store.state.properties.ApiUrl + "/participants", {
+        .get(this.$store.getters.apiUrl + "/participants", {
           headers: { "Content-Type": "application/json" }
         })
         .then(
@@ -152,6 +171,14 @@ export default {
             this.loading = false;
           }
         );
+    },
+
+    sortAsc() {
+      this.iterator.sortDesc = false;
+    },
+
+    sortDesc() {
+      this.iterator.sortDesc = true;
     },
 
     nextPage() {

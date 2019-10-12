@@ -36,11 +36,13 @@
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <div class="flex-grow-1"></div>
-      <img src="./assets/rejlers.svg" class="hidden-md-and-down" style="height: 22px" />
+      <img src="./assets/rejlers.svg" style="height: 22px" />
     </v-app-bar>
 
     <v-content>
-      <router-view></router-view>
+      <keep-alive include="List">
+        <router-view />
+      </keep-alive>
     </v-content>
 
     <AddParticipant />

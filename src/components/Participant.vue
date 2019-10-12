@@ -162,7 +162,7 @@ export default {
     postParticipant() {
       this.$http
         .post(
-          this.$store.state.properties.ApiUrl + "/participant",
+          this.$store.getters.apiUrl + "/participant",
           JSON.stringify(this.participantInternal),
           {
             headers: { "Content-Type": "application/json" }
@@ -193,7 +193,7 @@ export default {
     putParticipant() {
       this.$http
         .put(
-          this.$store.state.properties.ApiUrl +
+          this.$store.getters.apiUrl +
             "/participant/" +
             this.participantInternal.id,
           JSON.stringify(this.participantInternal),
@@ -236,7 +236,7 @@ export default {
     putScore(score) {
       this.$http
         .put(
-          this.$store.state.properties.ApiUrl +
+          this.$store.getters.apiUrl +
             "/participant/" +
             this.participantInternal.id,
           JSON.stringify({ score: score }),
