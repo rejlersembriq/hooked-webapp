@@ -13,7 +13,7 @@
         hide-default-footer
       >
         <template v-slot:header>
-          <v-row class="secondary">
+          <v-row class="secondary align-center">
             <v-col cols="12" md="6">
               <v-row class="align-center flex-nowrap mr-1">
                 <v-btn dark icon class="mx-1" @click.stop="getParticipants" :loading="loading">
@@ -32,7 +32,7 @@
                 ></v-text-field>
               </v-row>
             </v-col>
-            <v-col cols="12" md="6">
+            <v-col cols="8" md="4">
               <v-row class="align-center flex-nowrap mr-1">
                 <v-btn dark icon class="mx-1" @click.stop="toggleSort">
                   <v-icon v-if="!iterator.sortDesc">mdi-arrow-up</v-icon>
@@ -47,6 +47,18 @@
                   :items="iterator.keys"
                   prepend-inner-icon="search"
                   label="Sort by"
+                ></v-select>
+              </v-row>
+            </v-col>
+            <v-col cols="4" md="2">
+              <v-row class="align-center flex-nowrap mr-1">
+                <v-select
+                  dark
+                  v-model="iterator.itemsPerPage"
+                  flat
+                  hide-details
+                  :items="iterator.itemsPerPageOptions"
+                  label="Items per page"
                 ></v-select>
               </v-row>
             </v-col>
@@ -66,27 +78,7 @@
 
         <template v-slot:footer>
           <v-row class="mt-2" align="center" justify="center">
-            <span class="grey--text">Items per page</span>
-            <v-menu offset-y>
-              <template v-slot:activator="{ on }">
-                <v-btn dark text color="primary" class="ml-2" v-on="on">
-                  {{ iterator.itemsPerPage }}
-                  <v-icon>mdi-chevron-down</v-icon>
-                </v-btn>
-              </template>
-              <v-list>
-                <v-list-item
-                  v-for="(number, index) in iterator.itemsPerPageOptions"
-                  :key="index"
-                  @click="updateItemsPerPage(number)"
-                >
-                  <v-list-item-title>{{ number }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-
             <div class="flex-grow-1"></div>
-
             <span class="mr-4 grey--text">Page {{ iterator.page }} of {{ numberOfPages }}</span>
             <v-btn small fab dark class="secondary mr-1" @click="formerPage">
               <v-icon>mdi-chevron-left</v-icon>
