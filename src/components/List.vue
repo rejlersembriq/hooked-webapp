@@ -13,37 +13,44 @@
         hide-default-footer
       >
         <template v-slot:header>
-          <v-toolbar dark="dark" class="secondary mb-1">
-            <v-btn icon class="mr-2" @click.stop="getParticipants" :loading="loading">
-              <v-icon>mdi-refresh</v-icon>
-            </v-btn>
-            <v-text-field
-              v-model="iterator.search"
-              clearable="clearable"
-              flat="flat"
-              solo-inverted="solo-inverted"
-              hide-details="hide-details"
-              prepend-inner-icon="search"
-              label="Search"
-            ></v-text-field>
-            <template #extension>
-              <v-btn icon class="mr-2" @click.stop="sortAsc">
-                <v-icon>mdi-arrow-up</v-icon>
-              </v-btn>
-              <v-select
-                v-model="iterator.sortBy"
-                flat="flat"
-                solo-inverted="solo-inverted"
-                hide-details="hide-details"
-                :items="iterator.keys"
-                prepend-inner-icon="search"
-                label="Sort by"
-              ></v-select>
-              <v-btn icon class="ml-2" @click.stop="sortDesc">
-                <v-icon>mdi-arrow-down</v-icon>
-              </v-btn>
-            </template>
-          </v-toolbar>
+          <v-row class="secondary">
+            <v-col cols="12" md="6">
+              <v-row class="align-center flex-nowrap mr-1">
+                <v-btn dark icon class="mx-1" @click.stop="getParticipants" :loading="loading">
+                  <v-icon>mdi-refresh</v-icon>
+                </v-btn>
+                <v-text-field
+                  dark
+                  v-model="iterator.search"
+                  clearable
+                  flat
+                  solo
+                  hide-details
+                  prepend-inner-icon="search"
+                  label="Search"
+                  @keydown.enter.stop="blur"
+                ></v-text-field>
+              </v-row>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-row class="align-center flex-nowrap mr-1">
+                <v-btn dark icon class="mx-1" @click.stop="toggleSort">
+                  <v-icon v-if="!iterator.sortDesc">mdi-arrow-up</v-icon>
+                  <v-icon v-if="iterator.sortDesc">mdi-arrow-down</v-icon>
+                </v-btn>
+                <v-select
+                  dark
+                  v-model="iterator.sortBy"
+                  flat
+                  solo
+                  hide-details
+                  :items="iterator.keys"
+                  prepend-inner-icon="search"
+                  label="Sort by"
+                ></v-select>
+              </v-row>
+            </v-col>
+          </v-row>
         </template>
 
         <template v-slot:default="props">
@@ -172,12 +179,8 @@ export default {
         );
     },
 
-    sortAsc() {
-      this.iterator.sortDesc = false;
-    },
-
-    sortDesc() {
-      this.iterator.sortDesc = true;
+    toggleSort() {
+      this.iterator.sortDesc = !this.iterator.sortDesc;
     },
 
     nextPage() {
@@ -190,6 +193,10 @@ export default {
 
     updateItemsPerPage(number) {
       this.iterator.itemsPerPage = number;
+    },
+
+    blur() {
+      document.activeElement.blur();
     }
   },
 
