@@ -117,7 +117,7 @@ export default {
         this.$http
           .post(
             this.$store.state.properties.ApiUrl + "/participant",
-            JSON.stringify(this.participant),
+            JSON.stringify({... this.participant, score: 0}),
             {
               headers: { "Content-Type": "application/json" }
             }
