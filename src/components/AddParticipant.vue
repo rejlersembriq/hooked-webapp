@@ -76,7 +76,7 @@
       <v-btn color="white" text @click="snackbar.show = false">Close</v-btn>
     </v-snackbar>
 
-    <v-btn large bottom color="pink" dark fab fixed right @click.end="dialog = true">
+    <v-btn medium bottom color="pink" dark fab fixed right @click.end="dialog = true">
       <v-icon>mdi-plus</v-icon>
     </v-btn>
   </div>

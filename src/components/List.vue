@@ -71,6 +71,7 @@
               <Participant
                 :headline="participant.name"
                 v-model="participants[participants.indexOf(participant)]"
+                v-on:delete-participant="onDelete(participant)"
               />
             </v-col>
           </v-row>
@@ -146,29 +147,29 @@ export default {
   methods: {
     getParticipants() {
       this.loading = true;
-      this.$http
-        .get(this.$store.getters.apiUrl + "/participants", {
-          headers: { "Content-Type": "application/json" }
-        })
-        .then(
-          response => {
-            this.cardVisible = true;
+      this.$http.get(this.$store.getters.apiUrl + "/participants").then(
+        response => {
+          this.cardVisible = true;
 
-            this.participants = response.body;
+          this.participants = response.body;
 
-            this.loading = false;
-          },
-          () => {
-            this.participants = {};
+          this.loading = false;
+        },
+        () => {
+          this.participants = {};
 
-            this.snackbar.show = true;
-            this.snackbar.timeout = 5000;
-            this.snackbar.message = "Error getting participants";
-            this.snackbar.color = "error";
+          this.snackbar.show = true;
+          this.snackbar.timeout = 5000;
+          this.snackbar.message = "Error getting participants";
+          this.snackbar.color = "error";
 
-            this.loading = false;
-          }
-        );
+          this.loading = false;
+        }
+      );
+    },
+
+    onDelete(participant) {
+      this.participants.splice(this.participants.indexOf(participant), 1);
     },
 
     toggleSort() {

@@ -3,8 +3,11 @@
     <v-card-title class="accent">
       <span class="headline white--text">{{ this.headline }}</span>
       <div class="flex-grow-1"></div>
-      <v-btn icon @click.stop="editable = !editable" :disabled="editable" color="white">
+      <v-btn v-if="!editable" icon @click.stop="editable = !editable" color="white">
         <v-icon>mdi-lead-pencil</v-icon>
+      </v-btn>
+      <v-btn v-if="editable" icon @click.stop="dialog = true" color="white">
+        <v-icon>mdi-delete</v-icon>
       </v-btn>
     </v-card-title>
     <v-form ref="form" lazy-validation>
@@ -94,6 +97,21 @@
       :showScanner="scan"
     />
 
+    <v-dialog v-model="dialog" max-width="350">
+      <v-card>
+        <v-card-title class="headline">Confirm deletion</v-card-title>
+        <v-card-text>
+          Are you sure you want to delete
+          <b>{{ this.participantInternal.name }}</b>?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text="text" @click="dialog = false">No</v-btn>
+          <v-btn color="green darken-1" text="text" @click="deleteParticipant">Yes</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="snackbar.timeout">
       {{ this.snackbar.message }}
       <v-btn color="white" text @click="snackbar.show = false">Close</v-btn>
@@ -116,6 +134,7 @@ export default {
 
   data() {
     return {
+      dialog: false,
       participantInternal: {},
       editable: false,
       scan: false,
@@ -219,6 +238,37 @@ export default {
             this.snackbar.timeout = 5000;
             this.snackbar.message = "Error when saving participant.";
             this.snackbar.color = "error";
+          }
+        );
+    },
+
+    deleteParticipant() {
+      this.$http
+        .delete(
+          this.$store.getters.apiUrl +
+            "/participant/" +
+            this.participantInternal.id
+        )
+        .then(
+          () => {
+            this.snackbar.show = true;
+            this.snackbar.timeout = 5000;
+            this.snackbar.message =
+              "Participant " + this.participantInternal.name + " deleted.";
+            this.snackbar.color = "success";
+
+            this.editable = false;
+            this.dialog = false;
+            
+            this.$emit("delete-participant");
+          },
+          () => {
+            this.snackbar.show = true;
+            this.snackbar.timeout = 5000;
+            this.snackbar.message = "Error when deleting participant.";
+            this.snackbar.color = "error";
+
+            this.dialog = false;
           }
         );
     },
